@@ -2,14 +2,12 @@
 #                                     CONFIG                                   #
 ################################################################################
 
-
 NAME	= philo
 CC 		= gcc
-CFLAGS	= -Wall -Wextra -Werror -pthread -fsanitize=thread
+CFLAGS	= -Wall -Wextra -Werror -pthread -fsanitize=address
 DFLAGS	= -MMD -MF $(@:.o=.d)
 AUTHOR	= tverdood
 DATE	= 25/07/2022
-
 NOVISU 	= 0 # 1 = no progress bar usefull when tty is not available
 
 ################################################################################
@@ -26,6 +24,7 @@ SRCS			=	init.c \
 					mutexes_and_threads.c \
 					utils.c \
 					actions.c \
+					philo.c \
 
 MAIN			=	main.c
 

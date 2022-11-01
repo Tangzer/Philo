@@ -3,7 +3,7 @@
 bool	print_error(char *str)
 {
 	printf("%s\n", str);
-	return (true);
+	return (false);
 }
 
 static int	ft_strlen(char *str)
@@ -60,14 +60,4 @@ int	ft_atoi(const char *str)
 		str++;
 	}
 	return (sum * sign);
-}
-
-long	get_time_now(void)
-{
-	long			res;
-	struct timeval	time;
-
-	gettimeofday(&time, NULL);
-	res = (time.tv_sec * 1000) + (time.tv_usec / 1000);
-	return (res);
 }

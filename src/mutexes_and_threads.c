@@ -18,6 +18,5 @@ bool		ft_create_mutexes(t_table *table)
 	}
 	if (pthread_mutex_init(&table->death, NULL) != 0)
 		return (0);
-	//death --> ??
 	return (true);
 }
