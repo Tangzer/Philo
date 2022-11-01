@@ -5,7 +5,7 @@
 
 NAME	= philo
 CC 		= gcc
-CFLAGS	= -Wall -Wextra -Werror
+CFLAGS	= -Wall -Wextra -Werror -pthread -fsanitize=thread
 DFLAGS	= -MMD -MF $(@:.o=.d)
 AUTHOR	= tverdood
 DATE	= 25/07/2022
@@ -22,9 +22,10 @@ SRCS_PATH		=	./src
 
 INCLUDE_PATH	=	./src
 
-SRCS			=	initialize.c \
+SRCS			=	init.c \
 					mutexes_and_threads.c \
 					utils.c \
+					actions.c \
 
 MAIN			=	main.c
 
