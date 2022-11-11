@@ -1,60 +1,49 @@
 # include "../include/philo.h"
 
-static void	routine(t_philo *philo)
+static void	start_dining(t_table *table, t_philo *philo)
 {
-	pthread_mutex_lock(&philo->table_->forks[philo->left_fork]);
-	print_log(philo, "has taken a fork");
-	pthread_mutex_lock(&philo->table_->forks[philo->right_fork]);
-	print_log(philo, "has taken a fork");
-	pthread_mutex_lock(&philo->table_->death);
-	print_log(philo, "is eating");
-	philo->last_meal = get_time_now();
-	philo->meals_count++;
-	pthread_mutex_unlock(&philo->table_->death);
-	ft_action(philo->table_, philo->table_->time_to_eat);
-	pthread_mutex_unlock(&philo->table_->forks[philo->left_fork]);
-	pthread_mutex_unlock(&philo->table_->forks[philo->right_fork]);
-	print_log(philo, "is sleeping");
-	ft_action(philo->table_, philo->table_->time_to_sleep);
-	print_log(philo, "is thinking");
+	start_eating(table, philo);
+	if (table->someone_dead == 1)
+		return ;
+	else
+		print_log(table, philo, THINK);
+	return ;
 }
 
-static void	philo_loop(t_philo *philo)
+static void	philo_loop(t_table *table)
 {
-	if (philo->id % 2 == 0)
-		ft_action(philo->table_, 50);
-	while (42)
+	if (table->philo->id_philo % 2 == 0)
+		ft_sleep(50);
+	while (table->nb_times_each_philo_must_eat == -1
+			|| table->nb_rounds < table->nb_times_each_philo_must_eat)
 	{
-		pthread_mutex_lock(&philo->table_->mutex_print);
-		if (philo->table_->dinner_in_progress == 0)
-			break;
-		pthread_mutex_unlock(&philo->table_->mutex_print);
-		if (philo->table_->nb_philo > 1)
-			routine(philo);
+		if (table->someone_dead == 0)
+			start_dining(table, table->philo);
+		else
+			break ; ///??? dois-je l'ajouter ?
 	}
-	pthread_mutex_unlock(&philo->table_->mutex_print);
 }
 
-int	run_philo_loop(t_table *table)
+bool	run_philo_loop(t_table *table)
 {
 	int i;
 
 	i = 0;
-	table->dinner_in_progress = 1;
-	table->start_time = get_time_now();
 	while (i < table->nb_philo)
 	{
+		init_philo_forks_in_hand(table, i);
 		table->philo[i].last_meal = get_time_now();
-		if (pthread_create(&table->philo[i].thread, NULL, (void *)philo_loop, &table->philo[i]) != 0)
-			return (print_error("pthread_create() failed\n"));
+		if (!pthread_create(&table->philo[i].thread, NULL, (void *)philo_loop, table))
+			return (print_error("pthread_create() failed."));
 		i++;
 	}
 	check_if_someone_died(table);
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		pthread_join(table->philo[i].thread, NULL);
+		if (pthread_join(table->philo[i].thread, NULL) != 0)
+			return (print_error("pthread_join() failed."));
 		i++;
 	}
-	return (0);
+	return (true);
 }

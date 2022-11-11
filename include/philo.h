@@ -12,56 +12,64 @@
 # include <stdatomic.h>
 # include <stdbool.h>
 
-struct	s_table;
+enum e_state
+{
+	FORK,
+	EAT,
+	SLEEP,
+	THINK,
+	DEAD,
+	UNLOCK,
+	LOCK
+};
 
 typedef struct s_philo
 {
-	pthread_t			thread;
-	int					id;
-	int					left_fork;
-	int					right_fork;
-	atomic_long			last_meal;
-	atomic_int			meals_count;
-	struct s_table		*table_;
+	int					id_philo;
+	unsigned long long	last_meal;
+	pthread_mutex_t		*left_fork;
+	pthread_mutex_t 	*right_fork;
+	pthread_t 			thread;
 }	t_philo;
 
 typedef struct s_table
 {
-	t_philo				*philo;
-	atomic_int			nb_philo;
-	atomic_int			nb_of_times_each_philo_must_eat;
-	unsigned long		time_to_die;
+	int					nb_philo;
+	unsigned long					time_to_die;
 	int					time_to_eat;
 	int					time_to_sleep;
-	long				start_time;
-	int 				dinner_in_progress;
-	pthread_mutex_t		*forks;
-	pthread_mutex_t		mutex_print;
-	pthread_mutex_t		death;
+	int					nb_times_each_philo_must_eat;
+	int 				nb_philo_who_ate_this_round;
+	int					nb_rounds;
+	unsigned long		dinner_starting_time;
+	atomic_int			someone_dead;
+	atomic_int 			dinner_in_progress;
+	pthread_mutex_t 	print;
+	pthread_mutex_t 	*forks;
+	t_philo 			*philo;
 }	t_table;
 
 /* -Main- */
-unsigned long	get_time_now(void);
-void			print_log(t_philo *philo, char *str);
+unsigned long long	get_time_now(void);
+void				ft_sleep(unsigned long long time_to_sleep);
+void				print_log(t_table *table, t_philo *philo, int status);
 
 /* -Actions- */
-void			ft_action(t_table *table, int duration);
-void			eat_and_sleep(t_philo *philo, int phi_id, int next);
-void			check_if_someone_died(t_table *table);
+void				start_eating(t_table *table, t_philo *philo);
+
+/* -Dead- */
+void				check_if_someone_died(t_table *table);
 
 /* -Initialize- */
-bool			protect_and_init(t_table *table, char **av, int ac);
-
-/* -Mutexes and threads- */
-bool			ft_create_mutexes(t_table *table);
-bool			ft_create_threads(t_table *table);
+void				init_philo_forks_in_hand(t_table *table, int id);
+bool				protect_and_init(t_table *table, char **av, int ac);
 
 /* -Philo- */
-int				run_philo_loop(t_table *table);
+bool					run_philo_loop(t_table *table);
 
 /* -Utils- */
-bool			print_error(char *str);
-bool			ft_isdigit(char *str);
-int				ft_atoi(const char *str);
+bool				print_error(char *str);
+bool				ft_isdigit(char *str);
+int					ft_atoi(const char *str);
 
 #endif

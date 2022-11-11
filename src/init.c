@@ -1,8 +1,27 @@
 # include "../include/philo.h"
 
+void		init_philo_forks_in_hand(t_table *table, int id)
+{
+	if (table->nb_philo == 1)
+		table->philo[id].left_fork = &table->forks[0];  ///??? pq pas juste mettre 0 ?
+	else
+	{
+		if (id == table->nb_philo - 1)
+		{
+			table->philo[id].left_fork = &table->forks[id];
+			table->philo[id].right_fork = &table->forks[0];
+		}
+		else
+		{
+			table->philo[id].left_fork = &table->forks[id];
+			table->philo[id].right_fork = &table->forks[id + 1]; //au lieu de trouver unn systeme mathematique, on assigne juste 'trop' de fouchetttes, et on laisse les mutex gérer le fait qu'ils ne mangent jamais en meme temps?
+		}
+	}
+}
+
 static bool	is_valid_args(t_table *table, int ac, char **av)
 {
-	int i;
+	int	i;
 
 	i = 1;
 	while (i < ac)
@@ -15,40 +34,18 @@ static bool	is_valid_args(t_table *table, int ac, char **av)
 		return (print_error("Invalid number of philosophers."));
 	if (table->time_to_die < 0 || table->time_to_eat < 0
 		|| table->time_to_sleep < 0
-			|| table->nb_of_times_each_philo_must_eat < 0)
+		|| table->nb_times_each_philo_must_eat < -1)
 		return (print_error("Time argument is invalid"));
 	if (table->time_to_die > ULONG_MAX || table->time_to_eat > INT_MAX
 		|| table->time_to_sleep > INT_MAX
-			|| table->nb_of_times_each_philo_must_eat > INT_MAX)
+		|| table->nb_times_each_philo_must_eat > INT_MAX)
 		return (print_error("Time argument is invalid"));
-	if (ac == 6 && table->nb_of_times_each_philo_must_eat <= 0)
+	if (ac == 6 && table->nb_times_each_philo_must_eat <= 0)
 		return (print_error("number of eat is invalid"));
 	return (true);
 }
 
-static bool	init_each_philo(t_table *table)
-{
-	int i;
-
-	table->philo = malloc(sizeof(t_philo) * table->nb_philo);
-	if (!table->philo)
-		return (false);
-	memset(table->philo, 0, sizeof(t_philo *) * table->nb_philo);
-	i = 0;
-	while (i < table->nb_philo)
-	{
-		table->philo[i].id = i + 1;
-		table->philo[i].left_fork = i;
-		table->philo[i].right_fork = (i + 1) % table->nb_philo;
-		table->philo[i].meals_count = 0;
-		//memset(table->philo->table_, 0, sizeof (t_table));
-		table->philo[i].table_ = table;
-		i++;
-	}
-	return (true);
-}
-
-bool	init_args(t_table *table, char **av, int ac)
+static bool	init_args(t_table *table, char **av, int ac)
 {
 	if (ac < 5 || ac > 6)
 		return (print_error("The number of arguments is invalid."));
@@ -58,17 +55,62 @@ bool	init_args(t_table *table, char **av, int ac)
 	table->time_to_eat = ft_atoi(av[3]);
 	table->time_to_sleep = ft_atoi(av[4]);
 	if (ac == 6)
-		table->nb_of_times_each_philo_must_eat = ft_atoi(av[5]);
+		table->nb_times_each_philo_must_eat = ft_atoi(av[5]);
 	else
-		table->nb_of_times_each_philo_must_eat = 0;
-	return (is_valid_args(table, ac, av));
+		table->nb_times_each_philo_must_eat = -1;
+	if (!is_valid_args(table, ac, av))
+		return (false);
+	table->nb_philo_who_ate_this_round = 0;
+	table->nb_rounds = 0;
+	table->someone_dead = 0;
+	table->dinner_in_progress = 1;
+	table->dinner_starting_time = get_time_now();
+	return (true);
 }
 
-bool	protect_and_init(t_table *table, char **av, int ac)
+static bool	init_table_forks(t_table *table)
+{
+	int i;
+
+	table->forks = malloc(sizeof (pthread_mutex_t) * table->nb_philo);
+	if (!table->forks)
+		return (print_error("malloc() failed."));
+	i = 0;
+	while (i < table->nb_philo)
+	{
+		if (!pthread_mutex_init(&table->forks[i], NULL))
+			return (print_error("pthread_mutex_init() failed."));
+		i++;
+	}
+	return (true);
+}
+
+static bool	init_philos(t_table *table)
+{
+	int i;
+
+	table->philo = malloc(sizeof (t_philo) * table->nb_philo);
+	if (!table->philo)
+		return (print_error("malloc() failed."));
+	memset(table->philo, 0, sizeof(t_philo *) * table->nb_philo);
+	i = 0;
+	while (i < table->nb_philo)
+	{
+		table->philo[i].id_philo = i + 1;
+		i++;
+	}
+	return (true);
+}
+
+bool		protect_and_init(t_table *table, char **av, int ac)
 {
 	if (!init_args(table, av, ac))
 		return (false);
-	if (!init_each_philo(table))
+	if (!init_table_forks(table))
+		return (false);
+	if (!pthread_mutex_init(&table->print, NULL))
+		return (false);
+	if (!init_philos(table))
 		return (false);
 	return (true);
 }

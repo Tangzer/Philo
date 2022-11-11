@@ -1,59 +1,75 @@
 # include "../include/philo.h"
 
-unsigned long	get_time_now(void)
+unsigned long long	get_time_now(void)
 {
-	unsigned long	res;
-	struct timeval	time;
+	static struct timeval	time;
 
 	gettimeofday(&time, NULL);
-	res = (time.tv_sec * 1000) + (time.tv_usec / 1000);
-	return (res);
+	return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
 
-void	print_log(t_philo *philo, char *message)
+void	ft_sleep(unsigned long long time_to_sleep)
 {
-	atomic_long	now;
+	unsigned long long	actual_time;
 
-	now = get_time_now() - philo->table_->start_time;
-	pthread_mutex_lock(&philo->table_->mutex_print);
-	if (philo->table_->dinner_in_progress)
+	actual_time = get_time_now();
+	while (1)
 	{
-		printf("[%ld] - %d %s\n", now, philo->id, message);
+		if (get_time_now() - actual_time >= time_to_sleep)
+			break ;
+		usleep(100);
 	}
-	pthread_mutex_unlock(&philo->table_->mutex_print);
 }
 
-void	clear_the_table(t_table *table)
+void	print_log(t_table *table, t_philo *philo, int status)
+{
+	unsigned long long	time;
+
+	pthread_mutex_lock(&table->print);
+	time = get_time_now() - table->dinner_starting_time;
+	if (status == FORK && table->someone_dead == 0)
+		printf("%lld %d has taken a fork\n", time, philo->id_philo);
+	else if (status == EAT && table->someone_dead == 0)
+		printf("%lld %d is eating\n", time, philo->id_philo);
+	else if (status == SLEEP && table->someone_dead == 0)
+		printf("%lld %d is sleeping\n", time, philo->id_philo);
+	else if (status == THINK && table->someone_dead == 0)
+		printf("%lld %d is thinking\n", time, philo->id_philo);
+	else if (status == DEAD)
+		printf("%lld %d died\n", time, philo->id_philo);
+	pthread_mutex_unlock(&table->print);
+}
+
+static bool	clear_the_table(t_table *table)
 {
 	int	i;
 
+	if (pthread_mutex_destroy(&table->print) != 0)
+		return (print_error("pthread_mutex_destroy() failed."));
 	i = 0;
-	pthread_mutex_destroy(&table->mutex_print);
-	pthread_mutex_destroy(&table->death);
 	while (i < table->nb_philo)
 	{
-		pthread_mutex_destroy(table->forks + i);
+		if (!pthread_mutex_destroy(&table->forks[i]))
+			return (print_error("pthread_mutex_destroy() failed."));
 		i++;
 	}
 	free(table->philo);
 	free(table->forks);
+	return (true);
 }
 
 int	main(int ac, char **av)
 {
-	t_table table;
+	t_table	*table;
 
-	if (!protect_and_init(&table, av, ac))
+	table = malloc(sizeof(t_table));
+	if (!table)
 		return (EXIT_FAILURE);
-	if (!ft_create_mutexes(&table))
+	if (!protect_and_init(table, av, ac))
 		return (EXIT_FAILURE);
-	run_philo_loop(&table);
-	clear_the_table(&table);
+	if (!run_philo_loop(table))
+		return (EXIT_FAILURE);
+	if (!clear_the_table(table))
+		return (EXIT_FAILURE);
 	return (0);
 }
-
-// proteger les arguments au dessus du int max
-//-fsanitize=thread
-//-fsanitize=address --> malloc
-// PROTEGER fct de la lib
-// check github Dorian

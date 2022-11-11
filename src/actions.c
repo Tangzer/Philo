@@ -1,79 +1,57 @@
 # include "../include/philo.h"
 
-static void	check_if_someone_is_starving(t_table *table, t_philo *philo)
+static void	take_right_fork(t_table *table, t_philo *philo)
 {
-	unsigned long	time_without_eating;
-	unsigned long	time_died;
+	if (table->someone_dead == 1)
+		return ;
+	pthread_mutex_lock(philo->right_fork);
+	print_log(table, philo, FORK);
+}
 
-	time_without_eating = get_time_now() - philo->last_meal;
-	if (table->time_to_die < time_without_eating)
+static void	take_left_fork(t_table *table, t_philo *philo)
+{
+	if (table->someone_dead == 1)	//??? needed?
+		return ;
+	pthread_mutex_lock(philo->left_fork);
+	print_log(table, philo, FORK);
+	if (table->nb_philo == 1)
+		ft_sleep(table->time_to_die + 10);
+}
+
+static void	sleeping(t_table *table, t_philo *philo)
+{
+	print_log(table, philo, SLEEP);
+	ft_sleep(table->time_to_sleep);
+}
+
+static void	eating(t_table *table, t_philo *philo)
+{
+	print_log(table, philo, EAT);
+	philo->last_meal = get_time_now();
+	if (table->nb_times_each_philo_must_eat != -1
+			&& table->nb_rounds < table->nb_philo)
 	{
-		pthread_mutex_lock(&table->mutex_print);
-		time_died = get_time_now() - table->start_time;
-		printf("[%ld] - %d %s\n", time_died, philo->id, "died");
-		table->dinner_in_progress = 0;
-		pthread_mutex_unlock(&table->mutex_print);
+		table->nb_philo_who_ate_this_round++;
+		if (table->nb_philo_who_ate_this_round == table->nb_philo)
+		{
+			table->nb_philo_who_ate_this_round = 0;
+			table->nb_rounds++;
+		}
+		ft_sleep(table->time_to_sleep);
 	}
 }
 
-static void	check_if_bellies_are_full(t_table *table)
+void		start_eating(t_table *table, t_philo *philo)
 {
-	int i;
-
-	i = 0;
-	while (i < table->nb_philo)
+	if (table->nb_philo == 1)
+		take_left_fork(table, philo);
+	else
 	{
-		if (table->philo[i].meals_count < table->nb_of_times_each_philo_must_eat)
-			return ;
-		i++;
-	}
-	pthread_mutex_lock(&table->mutex_print);
-	table->dinner_in_progress = 0;
-	pthread_mutex_unlock(&table->mutex_print);
-}
-
-void	check_if_someone_died(t_table *table)
-{
-	int i;
-
-	while (table->dinner_in_progress)
-	{
-		i = 0;
-		usleep(100);
-		while (table->dinner_in_progress && i < table->nb_philo)
-		{
-			pthread_mutex_lock(&table->death);
-			check_if_someone_is_starving(table, &table->philo[i]);
-			pthread_mutex_unlock(&table->death);
-			i++;
-		}
-		if (table->nb_of_times_each_philo_must_eat > 0)
-		{
-			pthread_mutex_lock(&table->death);
-			check_if_bellies_are_full(table);
-			pthread_mutex_unlock(&table->death);
-		}
-	}
-}
-
-void	ft_action(t_table *table, int time)
-{
-	unsigned long	start;
-	unsigned long	duration;
-
-	start = get_time_now();
-	duration = (unsigned long)time;
-	while (42)
-	{
-		if (get_time_now() - start >= duration)
-			break ;
-		pthread_mutex_lock(&table->mutex_print);
-		if (table->dinner_in_progress == 0)
-		{
-			pthread_mutex_unlock(&table->mutex_print);
-			break ;
-		}
-		pthread_mutex_unlock(&table->mutex_print);
-		usleep(100);
+		take_left_fork(table, philo);
+		take_right_fork(table, philo);
+		eating(table, philo);
+		pthread_mutex_unlock(philo->left_fork);
+		pthread_mutex_unlock(philo->right_fork);
+		sleeping(table, philo);
 	}
 }

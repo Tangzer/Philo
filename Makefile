@@ -20,11 +20,11 @@ SRCS_PATH		=	./src
 
 INCLUDE_PATH	=	./src
 
-SRCS			=	init.c \
-					mutexes_and_threads.c \
-					utils.c \
-					actions.c \
+SRCS			=	actions.c \
+					dead.c \
+					init.c \
 					philo.c \
+					utils.c \
 
 MAIN			=	main.c
 
