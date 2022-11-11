@@ -15,26 +15,26 @@ static void	philo_loop(t_table *table)
 	t_philo	*philo;
 
 	philo = &table->philo[table->index];
-	if (philo->id_philo % 2 == 0)
+	table->index++;
+	if (philo->id_philo % 2 == 0) {
 		ft_sleep(100);
+	}
 	while (table->nb_times_each_philo_must_eat == -1
 			|| table->nb_rounds < table->nb_times_each_philo_must_eat)
 	{
-		if (table->someone_dead == 0) {
+		if (!table->someone_dead) {
 			start_dining(table, philo);
 		}
 		else {
 			break ;
 		}
 	}
-	table->index++;
 }
 
 bool	run_philo_loop(t_table *table)
 {
 	int i;
 
-	printf("INDEX = %d\n\n", table->index);
 	i = 0;
 	while (i < table->nb_philo)
 	{
