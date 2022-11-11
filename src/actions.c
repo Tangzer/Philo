@@ -10,7 +10,7 @@ static void	take_right_fork(t_table *table, t_philo *philo)
 
 static void	take_left_fork(t_table *table, t_philo *philo)
 {
-	if (table->someone_dead == 1)	//??? needed?
+	if (table->someone_dead == 1)
 		return ;
 	pthread_mutex_lock(philo->left_fork);
 	print_log(table, philo, FORK);

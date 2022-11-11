@@ -12,28 +12,35 @@ static void	start_dining(t_table *table, t_philo *philo)
 
 static void	philo_loop(t_table *table)
 {
-	if (table->philo->id_philo % 2 == 0)
-		ft_sleep(50);
+	t_philo	*philo;
+
+	philo = &table->philo[table->index];
+	if (philo->id_philo % 2 == 0)
+		ft_sleep(100);
 	while (table->nb_times_each_philo_must_eat == -1
 			|| table->nb_rounds < table->nb_times_each_philo_must_eat)
 	{
-		if (table->someone_dead == 0)
-			start_dining(table, table->philo);
-		else
-			break ; ///??? dois-je l'ajouter ?
+		if (table->someone_dead == 0) {
+			start_dining(table, philo);
+		}
+		else {
+			break ;
+		}
 	}
+	table->index++;
 }
 
 bool	run_philo_loop(t_table *table)
 {
 	int i;
 
+	printf("INDEX = %d\n\n", table->index);
 	i = 0;
 	while (i < table->nb_philo)
 	{
 		init_philo_forks_in_hand(table, i);
 		table->philo[i].last_meal = get_time_now();
-		if (!pthread_create(&table->philo[i].thread, NULL, (void *)philo_loop, table))
+		if (pthread_create(&table->philo[i].thread, NULL, (void *)philo_loop, table) != 0)
 			return (print_error("pthread_create() failed."));
 		i++;
 	}

@@ -49,7 +49,7 @@ static bool	clear_the_table(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		if (!pthread_mutex_destroy(&table->forks[i]))
+		if (pthread_mutex_destroy(&table->forks[i]) != 0)
 			return (print_error("pthread_mutex_destroy() failed."));
 		i++;
 	}
@@ -62,10 +62,8 @@ int	main(int ac, char **av)
 {
 	t_table	*table;
 
-	table = malloc(sizeof(t_table));
+	table = protect_and_init(av, ac);
 	if (!table)
-		return (EXIT_FAILURE);
-	if (!protect_and_init(table, av, ac))
 		return (EXIT_FAILURE);
 	if (!run_philo_loop(table))
 		return (EXIT_FAILURE);
