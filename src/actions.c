@@ -27,7 +27,6 @@ static void	sleeping(t_table *table, t_philo *philo)
 static void	eating(t_table *table, t_philo *philo)
 {
 	print_log(table, philo, EAT);
-	philo->last_meal = get_time_now();
 	if (table->nb_times_each_philo_must_eat != -1
 			&& table->nb_philo_who_ate_this_round < table->nb_philo)
 	{

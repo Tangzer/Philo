@@ -68,7 +68,7 @@ static bool	clear_the_table(t_table *table)
 //			return (print_error("pthread_mutex_destroy() failed-."));
 		if (pthread_mutex_destroy(table->philo[i].right_fork) != 0)
 			return (print_error("pthread_mutex_destroy() failed+."));
-		if (pthread_detach(table->philo[i].thread) != 0)
+		if (pthread_detach(table->thread[i]) != 0)
 			return (print_error("pthread_detach() failed."));
 		i++;
 	}
@@ -87,11 +87,10 @@ int	main(int ac, char **av)
 		return (EXIT_FAILURE);
 	if (!run_philo_loop(table))
 		return (EXIT_FAILURE);
-	printf("someone died?\n");
 	check_if_someone_died(table);
 	printf("join threads\n");
 	join_threads(table);
-
+	printf("threads have been joined.\n");
 	exit(0);
 	if (!clear_the_table(table))
 		return (EXIT_FAILURE);

@@ -27,7 +27,6 @@ enum e_state
 
 typedef struct s_philo
 {
-	pthread_t 			thread;
 	int					id_philo;
 	atomic_ullong 		last_meal;
 	pthread_mutex_t		*left_fork;
@@ -49,6 +48,7 @@ typedef struct s_table
 	pthread_mutex_t 	print;
 	pthread_mutex_t 	*forks;
 	t_philo 			*philo;
+	pthread_t			*thread;
 }	t_table;
 
 /* -Main- */

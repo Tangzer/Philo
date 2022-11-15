@@ -39,10 +39,14 @@ bool	run_philo_loop(t_table *table)
 {
 	int i;
 
+	table->thread = malloc(sizeof(pthread_t) * table->nb_philo);
+	if (!table->thread)
+		return (print_error("malloc() failed."));
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		if (pthread_create(&table->philo[i].thread, NULL, (void *)philo_loop, table) != 0)
+		table->philo[i].last_meal = get_time_now();
+		if (pthread_create(&table->thread[i], NULL, (void *)philo_loop, table) != 0)
 			return (print_error("pthread_create() failed."));
 		i++;
 	}
@@ -56,7 +60,7 @@ void	join_threads(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		pthread_join(table->philo[i].thread, NULL);
+		pthread_join(table->thread[i], NULL);
 		i++;
 	}
 }
