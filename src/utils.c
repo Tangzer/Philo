@@ -1,5 +1,3 @@
-# include "../include/philo.h"
-
 #include "../include/philo.h"
 
 bool	print_error(char *str)

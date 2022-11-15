@@ -1,4 +1,3 @@
-
 #ifndef PHILO_H
 # define PHILO_H
 
@@ -25,12 +24,18 @@ enum e_state
 	LOCK
 };
 
+typedef struct s_arg
+{
+	void				*philo;
+	void				*table;
+}	t_arg;
+
 typedef struct s_philo
 {
 	int					id_philo;
-	atomic_ullong 		last_meal;
+	atomic_ullong		last_meal;
 	pthread_mutex_t		*left_fork;
-	pthread_mutex_t 	*right_fork;
+	pthread_mutex_t		*right_fork;
 }	t_philo;
 
 typedef struct s_table
@@ -40,14 +45,14 @@ typedef struct s_table
 	int					time_to_eat;
 	int					time_to_sleep;
 	atomic_int			nb_times_each_philo_must_eat;
-	atomic_int 			nb_philo_who_ate_this_round;
-	atomic_int 			index;
+	atomic_int			nb_philo_who_ate_this_round;
+	atomic_int			index;
 	unsigned long		dinner_starting_time;
 	atomic_int			nb_rounds;
 	atomic_int			someone_dead;
-	pthread_mutex_t 	print;
-	pthread_mutex_t 	*forks;
-	t_philo 			*philo;
+	pthread_mutex_t		print;
+	pthread_mutex_t		*forks;
+	t_philo				*philo;
 	pthread_t			*thread;
 }	t_table;
 
@@ -64,11 +69,11 @@ void				check_if_someone_died(t_table *table);
 
 /* -Initialize- */
 void				init_philo_forks_in_hand(t_table *table, int id);
-t_table*			protect_and_init(char **av, int ac);
+t_table				*protect_and_init(char **av, int ac);
 
 /* -Philo- */
 bool				run_philo_loop(t_table *table);
-void				join_threads(t_table *table);
+bool				join_threads(t_table *table);
 
 /* -Utils- */
 bool				print_error(char *str);

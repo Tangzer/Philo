@@ -1,4 +1,4 @@
-# include "../include/philo.h"
+#include "../include/philo.h"
 
 static bool	someone_is_starving(t_table *table, t_philo *philo)
 {

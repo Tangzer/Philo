@@ -1,4 +1,4 @@
-# include "../include/philo.h"
+#include "../include/philo.h"
 
 static void	start_dining(t_table *table, t_philo *philo)
 {
@@ -9,20 +9,18 @@ static void	start_dining(t_table *table, t_philo *philo)
 	return ;
 }
 
-static void	philo_loop(t_table *table)
+static void	philo_loop(t_table *data)
 {
+	t_table	*table;
 	t_philo	*philo;
 
+	table = (t_table *)data;
 	philo = &table->philo[table->index];
 	table->index++;
-/*	pthread_mutex_lock(&table->print);
-	printf("\nINDEX = %d\n", table->index);
-	printf("philo-[%d] starts to eat\n", philo->id_philo); // EFFACER
-	pthread_mutex_unlock(&table->print);
-*/
 	if (philo->id_philo % 2 == 0)
 		ft_sleep(50, table);
-	while (table->nb_times_each_philo_must_eat == -1 || table->nb_rounds < table->nb_times_each_philo_must_eat)
+	while (table->nb_times_each_philo_must_eat == -1
+		|| table->nb_rounds < table->nb_times_each_philo_must_eat)
 	{
 		pthread_mutex_lock(&table->print);
 		if (table->someone_dead == 1)
@@ -37,7 +35,7 @@ static void	philo_loop(t_table *table)
 
 bool	run_philo_loop(t_table *table)
 {
-	int i;
+	int	i;
 
 	table->thread = malloc(sizeof(pthread_t) * table->nb_philo);
 	if (!table->thread)
@@ -46,21 +44,33 @@ bool	run_philo_loop(t_table *table)
 	while (i < table->nb_philo)
 	{
 		table->philo[i].last_meal = get_time_now();
-		if (pthread_create(&table->thread[i], NULL, (void *)philo_loop, table) != 0)
+		if (pthread_create(&table->thread[i], NULL, (void *)philo_loop,
+				table) != 0)
 			return (print_error("pthread_create() failed."));
 		i++;
 	}
 	return (true);
 }
 
-void	join_threads(t_table *table)
+bool	join_threads(t_table *table)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		pthread_join(table->thread[i], NULL);
+		if (pthread_detach(table->thread[i]) != 0) {
+			return (print_error("pthread_detach() failed."));
+		}
+//		if (pthread_join(table->thread[i], NULL) != 0)
+//			return (print_error("pthread_join() failed."));
+# include <errno.h>
+		if (pthread_join(table->thread[i], NULL))
+		{
+			printf("errno = %d", (int)errno);
+			exit(EXIT_FAILURE);
+		}
 		i++;
 	}
+	return (true);
 }

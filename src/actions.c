@@ -1,4 +1,4 @@
-# include "../include/philo.h"
+#include "../include/philo.h"
 
 static void	take_right_fork(t_table *table, t_philo *philo)
 {
@@ -28,7 +28,7 @@ static void	eating(t_table *table, t_philo *philo)
 {
 	print_log(table, philo, EAT);
 	if (table->nb_times_each_philo_must_eat != -1
-			&& table->nb_philo_who_ate_this_round < table->nb_philo)
+		&& table->nb_philo_who_ate_this_round < table->nb_philo)
 	{
 		table->nb_philo_who_ate_this_round++;
 		if (table->nb_philo_who_ate_this_round == table->nb_philo)
@@ -40,7 +40,7 @@ static void	eating(t_table *table, t_philo *philo)
 	}
 }
 
-void		start_eating(t_table *table, t_philo *philo)
+void	start_eating(t_table *table, t_philo *philo)
 {
 	if (table->nb_philo == 1)
 		take_left_fork(table, philo);

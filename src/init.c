@@ -1,9 +1,9 @@
 # include "../include/philo.h"
 
-void		init_philo_forks_in_hand(t_table *table, int id)
+void	init_philo_forks_in_hand(t_table *table, int id)
 {
 	if (table->nb_philo == 1)
-		table->philo[id].left_fork = &table->forks[0];  ///??? pq pas juste mettre 0 ?
+		table->philo[id].left_fork = &table->forks[0];
 	else
 	{
 		if (id == table->nb_philo - 1)
@@ -14,7 +14,7 @@ void		init_philo_forks_in_hand(t_table *table, int id)
 		else
 		{
 			table->philo[id].left_fork = &table->forks[id];
-			table->philo[id].right_fork = &table->forks[id + 1]; //au lieu de trouver unn systeme mathematique, on assigne juste 'trop' de fouchetttes, et on laisse les mutex gérer le fait qu'ils ne mangent jamais en meme temps?
+			table->philo[id].right_fork = &table->forks[id + 1];
 		}
 	}
 }
@@ -70,7 +70,7 @@ static bool	init_args(t_table *table, char **av, int ac)
 
 static bool	init_table_forks(t_table *table)
 {
-	int i;
+	int	i;
 
 	table->forks = malloc(sizeof(pthread_mutex_t) * table->nb_philo);
 	if (!table->forks)
@@ -88,7 +88,7 @@ static bool	init_table_forks(t_table *table)
 
 static bool	init_philos(t_table *table)
 {
-	int i;
+	int	i;
 
 	table->philo = malloc(sizeof (t_philo) * table->nb_philo * 10);
 	if (!table->philo)
@@ -104,7 +104,7 @@ static bool	init_philos(t_table *table)
 	return (true);
 }
 
-t_table*	protect_and_init(char **av, int ac)
+t_table		*protect_and_init(char **av, int ac)
 {
 	t_table	*table;
 

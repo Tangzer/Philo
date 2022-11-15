@@ -1,4 +1,4 @@
-# include "../include/philo.h"
+#include "../include/philo.h"
 
 unsigned long long	get_time_now(void)
 {
@@ -52,8 +52,6 @@ static bool	clear_the_table(t_table *table)
 {
 	int	i;
 
-	if (pthread_mutex_destroy(&table->print) != 0)
-		return (print_error("pthread_mutex_destroy() failed."));
 	i = 0;
 	while (i < table->nb_philo)
 	{
@@ -61,20 +59,9 @@ static bool	clear_the_table(t_table *table)
 			return (print_error("pthread_mutex_destroy() failed."));
 		i++;
 	}
-	i = 0;
-	while (i < table->nb_philo)
-	{
-//		if (pthread_mutex_destroy(table->philo[i].left_fork) != 0)
-//			return (print_error("pthread_mutex_destroy() failed-."));
-		if (pthread_mutex_destroy(table->philo[i].right_fork) != 0)
-			return (print_error("pthread_mutex_destroy() failed+."));
-		if (pthread_detach(table->thread[i]) != 0)
-			return (print_error("pthread_detach() failed."));
-		i++;
-	}
 	free(table->philo);
 	free(table->forks);
-	free(table);
+	free(table->thread);
 	return (true);
 }
 
@@ -88,14 +75,14 @@ int	main(int ac, char **av)
 	if (!run_philo_loop(table))
 		return (EXIT_FAILURE);
 	check_if_someone_died(table);
-	printf("join threads\n");
-	join_threads(table);
-	printf("threads have been joined.\n");
-	exit(0);
-	if (!clear_the_table(table))
+	if (!join_threads(table))
 		return (EXIT_FAILURE);
+	clear_the_table(table);
 	return (0);
 }
 
 
-// CGHECK LEAKS
+// CHECK LEAKS
+// que dois-je free?
+// ptrhead_join et detach casse les c (essayer avec peu et bcop de philo)
+//thread leak  --> vient du join threads...
