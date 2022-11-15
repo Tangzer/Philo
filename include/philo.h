@@ -27,11 +27,11 @@ enum e_state
 
 typedef struct s_philo
 {
+	pthread_t 			thread;
 	int					id_philo;
 	atomic_ullong 		last_meal;
 	pthread_mutex_t		*left_fork;
 	pthread_mutex_t 	*right_fork;
-	pthread_t 			thread;
 }	t_philo;
 
 typedef struct s_table
@@ -40,8 +40,8 @@ typedef struct s_table
 	unsigned long		time_to_die;
 	int					time_to_eat;
 	int					time_to_sleep;
-	int					nb_times_each_philo_must_eat;
-	int 				nb_philo_who_ate_this_round;
+	atomic_int			nb_times_each_philo_must_eat;
+	atomic_int 			nb_philo_who_ate_this_round;
 	atomic_int 			index;
 	unsigned long		dinner_starting_time;
 	atomic_int			nb_rounds;
@@ -53,7 +53,7 @@ typedef struct s_table
 
 /* -Main- */
 unsigned long long	get_time_now(void);
-void				ft_sleep(unsigned long long time_to_sleep);
+void				ft_sleep(unsigned long long time_to_sleep, t_table *table);
 void				print_log(t_table *table, t_philo *philo, int status);
 
 /* -Actions- */
@@ -68,6 +68,7 @@ t_table*			protect_and_init(char **av, int ac);
 
 /* -Philo- */
 bool				run_philo_loop(t_table *table);
+void				join_threads(t_table *table);
 
 /* -Utils- */
 bool				print_error(char *str);

@@ -15,13 +15,13 @@ static void	take_left_fork(t_table *table, t_philo *philo)
 	pthread_mutex_lock(philo->left_fork);
 	print_log(table, philo, FORK);
 	if (table->nb_philo == 1)
-		ft_sleep(table->time_to_die + 10);
+		ft_sleep(table->time_to_die + 10, table);
 }
 
 static void	sleeping(t_table *table, t_philo *philo)
 {
 	print_log(table, philo, SLEEP);
-	ft_sleep(table->time_to_sleep);
+	ft_sleep(table->time_to_sleep, table);
 }
 
 static void	eating(t_table *table, t_philo *philo)
@@ -37,7 +37,7 @@ static void	eating(t_table *table, t_philo *philo)
 			table->nb_philo_who_ate_this_round = 0;
 			table->nb_rounds++;
 		}
-		ft_sleep(table->time_to_sleep);
+		ft_sleep(table->time_to_sleep, table);
 	}
 }
 

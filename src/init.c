@@ -72,7 +72,7 @@ static bool	init_table_forks(t_table *table)
 {
 	int i;
 
-	table->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * table->nb_philo);
+	table->forks = malloc(sizeof(pthread_mutex_t) * table->nb_philo);
 	if (!table->forks)
 		return (print_error("malloc() failed."));
 	memset(table->forks, 0, sizeof(pthread_mutex_t));
@@ -90,13 +90,14 @@ static bool	init_philos(t_table *table)
 {
 	int i;
 
-	table->philo = malloc(sizeof (t_philo) * table->nb_philo * 10); //???
+	table->philo = malloc(sizeof (t_philo) * table->nb_philo * 10);
 	if (!table->philo)
 		return (print_error("malloc() failed."));
 	memset(table->philo, 0, sizeof(t_philo *) * table->nb_philo);
 	i = 0;
 	while (i < table->nb_philo)
 	{
+		init_philo_forks_in_hand(table, i);
 		table->philo[i].id_philo = i + 1;
 		i++;
 	}
@@ -116,7 +117,5 @@ t_table*	protect_and_init(char **av, int ac)
 		return (false);
 	if (!init_philos(table))
 		return (false);
-
-	//printf("\n%d, %d, %d, %d, %d, %d\n", table->nb_philo, table->time_to_eat, table->time_to_sleep, table->nb_times_each_philo_must_eat, table->nb_philo_who_ate_this_round, table->nb_rounds);
 	return (table);
 }

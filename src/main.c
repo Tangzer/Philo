@@ -8,17 +8,25 @@ unsigned long long	get_time_now(void)
 	return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
 
-void	ft_sleep(unsigned long long time_to_sleep)
+void	ft_sleep(unsigned long long time_to_sleep, t_table *table)
 {
-	unsigned long long	actual_time;
+	unsigned long long	start;
 
-	actual_time = get_time_now();
-	while (1)
+	start = get_time_now();
+	while (42)
 	{
-		if (get_time_now() - actual_time >= time_to_sleep)
+		if (get_time_now() - start >= time_to_sleep)
 			break ;
+		pthread_mutex_lock(&table->print);
+		if (table->someone_dead)
+		{
+			pthread_mutex_unlock(&table->print);
+			break ;
+		}
+		pthread_mutex_unlock(&table->print);
 		usleep(100);
 	}
+	return ;
 }
 
 void	print_log(t_table *table, t_philo *philo, int status)
@@ -53,8 +61,20 @@ static bool	clear_the_table(t_table *table)
 			return (print_error("pthread_mutex_destroy() failed."));
 		i++;
 	}
+	i = 0;
+	while (i < table->nb_philo)
+	{
+//		if (pthread_mutex_destroy(table->philo[i].left_fork) != 0)
+//			return (print_error("pthread_mutex_destroy() failed-."));
+		if (pthread_mutex_destroy(table->philo[i].right_fork) != 0)
+			return (print_error("pthread_mutex_destroy() failed+."));
+		if (pthread_detach(table->philo[i].thread) != 0)
+			return (print_error("pthread_detach() failed."));
+		i++;
+	}
 	free(table->philo);
 	free(table->forks);
+	free(table);
 	return (true);
 }
 
@@ -67,7 +87,16 @@ int	main(int ac, char **av)
 		return (EXIT_FAILURE);
 	if (!run_philo_loop(table))
 		return (EXIT_FAILURE);
+	printf("someone died?\n");
+	check_if_someone_died(table);
+	printf("join threads\n");
+	join_threads(table);
+
+	exit(0);
 	if (!clear_the_table(table))
 		return (EXIT_FAILURE);
 	return (0);
 }
+
+
+// CGHECK LEAKS
