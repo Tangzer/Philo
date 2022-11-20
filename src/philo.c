@@ -59,17 +59,20 @@ bool	join_threads(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		if (pthread_detach(table->thread[i]) != 0) {
+		int err = 0;
+		err = pthread_detach(table->thread[i]);
+		if (err != 0) {
+			printf("err = %d\n", err);
 			return (print_error("pthread_detach() failed."));
 		}
 //		if (pthread_join(table->thread[i], NULL) != 0)
 //			return (print_error("pthread_join() failed."));
 # include <errno.h>
-		if (pthread_join(table->thread[i], NULL))
-		{
-			printf("errno = %d", (int)errno);
-			exit(EXIT_FAILURE);
-		}
+//		if (pthread_join(table->thread[i], NULL) != 0)
+//		{
+//			printf("errno = %d\n", (int)errno);
+//			exit(EXIT_FAILURE);
+//		}
 		i++;
 	}
 	return (true);
