@@ -35,17 +35,37 @@ void	check_if_someone_died(t_table *table)
 
 	while (42)
 	{
+		pthread_mutex_lock(&table->print);
+		printf("loop\n");
+		pthread_mutex_unlock(&table->print);
 		i = 0;
-		usleep(50);
-		while (table->someone_dead == 0 && i < table->nb_philo)
+		usleep(100);
+		while (i < table->nb_philo)
 		{
-			if (someone_is_starving(table, &table->philo[i]))
+			if (table->someone_dead == 0 && someone_is_starving(table, table->philo[i]))
+			{
+				int u = get_time_now() - table->dinner_starting_time;
+				printf("died of starving - %d\n", u);
 				return ;
+			}
 			i++;
 		}
 		if (bellies_are_full(table))
+		{
+			int u = get_time_now() - table->dinner_starting_time;
+			printf("bellies are full - %d\n", u);
 			return ;
+		}
 		if (table->someone_dead == 1)
+		{
+			int u = get_time_now() - table->dinner_starting_time;
+			printf("UNKNOWN reason - %d\n", u);
 			return ;
+		}
+		pthread_mutex_lock(&table->print);
+		printf("end loop\n");
+		pthread_mutex_unlock(&table->print);
 	}
 }
+
+//// EFFACER les 3 debug au-dessus

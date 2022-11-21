@@ -1,23 +1,4 @@
-# include "../include/philo.h"
-
-void	init_philo_forks_in_hand(t_table *table, int id)
-{
-	if (table->nb_philo == 1)
-		table->philo[id].left_fork = &table->forks[0];
-	else
-	{
-		if (id == table->nb_philo - 1)
-		{
-			table->philo[id].left_fork = &table->forks[id];
-			table->philo[id].right_fork = &table->forks[0];
-		}
-		else
-		{
-			table->philo[id].left_fork = &table->forks[id];
-			table->philo[id].right_fork = &table->forks[id + 1];
-		}
-	}
-}
+ # include "../include/philo.h"
 
 static bool	is_valid_args(t_table *table, int ac, char **av)
 {
@@ -68,14 +49,33 @@ static bool	init_args(t_table *table, char **av, int ac)
 	return (true);
 }
 
-static bool	init_table_forks(t_table *table)
+ void	init_philo_forks_in_hand(t_table *table, int id)
+ {
+	 if (table->nb_philo == 1)
+		 table->philo[id]->left_fork = &table->forks[0];
+	 else
+	 {
+		 if (id == table->nb_philo - 1)
+		 {
+			 table->philo[id]->left_fork = &table->forks[id];
+			 table->philo[id]->right_fork = &table->forks[0];
+		 }
+		 else
+		 {
+			 table->philo[id]->left_fork = &table->forks[id];
+			 table->philo[id]->right_fork = &table->forks[id + 1];
+		 }
+	 }
+ }
+
+static bool	init_mutex_forks(t_table *table)
 {
 	int	i;
 
 	table->forks = malloc(sizeof(pthread_mutex_t) * table->nb_philo);
 	if (!table->forks)
 		return (print_error("malloc() failed."));
-	memset(table->forks, 0, sizeof(pthread_mutex_t));
+//	memset(table->forks, 0, sizeof(pthread_mutex_t));
 	i = 0;
 	while (i < table->nb_philo)
 	{
@@ -86,19 +86,39 @@ static bool	init_table_forks(t_table *table)
 	return (true);
 }
 
+static t_philo	*init_philo_data(int id)
+{
+	t_philo	*philo;
+
+	philo = malloc(sizeof(t_philo));
+	if (!philo)
+		return (NULL);
+	memset(philo, 0, sizeof(t_philo));
+	philo->id_philo = id;
+	return (philo);
+}
+
 static bool	init_philos(t_table *table)
 {
 	int	i;
 
-	table->philo = malloc(sizeof (t_philo) * table->nb_philo * 10);
+	table->philo = malloc(sizeof (t_philo) * table->nb_philo);
 	if (!table->philo)
 		return (print_error("malloc() failed."));
 	memset(table->philo, 0, sizeof(t_philo *) * table->nb_philo);
 	i = 0;
 	while (i < table->nb_philo)
 	{
+		table->philo[i] = init_philo_data(i + 1);
+		if (!table->philo[i])
+			return (print_error("malloc() failed."));
+		i++;
+	}
+	i = 0;
+	while (i < table->nb_philo)
+	{
 		init_philo_forks_in_hand(table, i);
-		table->philo[i].id_philo = i + 1;
+//		table->philo[i].id_philo = i + 1;
 		i++;
 	}
 	return (true);
@@ -111,7 +131,7 @@ t_table		*protect_and_init(char **av, int ac)
 	table = malloc(sizeof(t_table));
 	if (!init_args(table, av, ac))
 		return (false);
-	if (!init_table_forks(table))
+	if (!init_mutex_forks(table))
 		return (false);
 	if (pthread_mutex_init(&table->print, NULL) != 0)
 		return (false);

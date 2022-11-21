@@ -48,20 +48,47 @@ void	print_log(t_table *table, t_philo *philo, int status)
 	pthread_mutex_unlock(&table->print);
 }
 
+
 static bool	clear_the_table(t_table *table)
+{
+	int	i;
+
+	i = 0;
+
+	while (i < table->nb_philo)
+	{
+		free(table->philo[i]);
+		i++;
+	}
+	free(table->philo);
+	free(table->forks);
+	free(table->thread);
+	return (true);
+}
+
+bool	join_threads(t_table *table)
 {
 	int	i;
 
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		if (pthread_mutex_destroy(&table->forks[i]) != 0)
-			return (print_error("pthread_mutex_destroy() failed."));
+		int err = 0;
+		err = pthread_detach(table->thread[i]);
+		if (err != 0)
+		{
+			printf("err = %d\n", err);
+			return (print_error("pthread_detach() failed+."));
+		} //EFFACER
+		pthread_mutex_unlock(&table->forks[i]);
+		err = pthread_mutex_destroy(&table->forks[i]);
+		if (err != 0)
+		{
+			printf("err = %d\n", err);
+			return (print_error("pthread_mutex_destroy() failed-."));
+		} //effacer
 		i++;
 	}
-	free(table->philo);
-	free(table->forks);
-	free(table->thread);
 	return (true);
 }
 
@@ -74,15 +101,20 @@ int	main(int ac, char **av)
 		return (EXIT_FAILURE);
 	if (!run_philo_loop(table))
 		return (EXIT_FAILURE);
+	printf("LOOP OK\n");
 	check_if_someone_died(table);
+	printf("DEAD LOOP OK\n");
+	pthread_mutex_destroy(&table->print);
+	printf("MUTEX PRINT OK\n");
 	if (!join_threads(table))
 		return (EXIT_FAILURE);
+	printf("JOIN THREADS OK\n");
 	clear_the_table(table);
+	printf("table cleared OK\n");
 	return (0);
 }
 
 
-// CHECK LEAKS
-// que dois-je free?
-// ptrhead_join et detach casse les c (essayer avec peu et bcop de philo)
-//thread leak  --> vient du join threads...
+// CHECK LEAKS && FREE
+// check_if someone_died tourne a l'infini parfois...
+// ptrhead_join problematqiue avec bcp de philo

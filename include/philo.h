@@ -24,12 +24,6 @@ enum e_state
 	LOCK
 };
 
-typedef struct s_arg
-{
-	void				*philo;
-	void				*table;
-}	t_arg;
-
 typedef struct s_philo
 {
 	int					id_philo;
@@ -49,10 +43,10 @@ typedef struct s_table
 	atomic_int			index;
 	unsigned long		dinner_starting_time;
 	atomic_int			nb_rounds;
-	atomic_int			someone_dead;
+	int			someone_dead;
 	pthread_mutex_t		print;
 	pthread_mutex_t		*forks;
-	t_philo				*philo;
+	t_philo				**philo;
 	pthread_t			*thread;
 }	t_table;
 

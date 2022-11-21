@@ -15,7 +15,7 @@ static void	philo_loop(t_table *data)
 	t_philo	*philo;
 
 	table = (t_table *)data;
-	philo = &table->philo[table->index];
+	philo = table->philo[table->index];
 	table->index++;
 	if (philo->id_philo % 2 == 0)
 		ft_sleep(50, table);
@@ -43,36 +43,10 @@ bool	run_philo_loop(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		table->philo[i].last_meal = get_time_now();
+		table->philo[i]->last_meal = get_time_now();
 		if (pthread_create(&table->thread[i], NULL, (void *)philo_loop,
 				table) != 0)
 			return (print_error("pthread_create() failed."));
-		i++;
-	}
-	return (true);
-}
-
-bool	join_threads(t_table *table)
-{
-	int	i;
-
-	i = 0;
-	while (i < table->nb_philo)
-	{
-		int err = 0;
-		err = pthread_detach(table->thread[i]);
-		if (err != 0) {
-			printf("err = %d\n", err);
-			return (print_error("pthread_detach() failed."));
-		}
-//		if (pthread_join(table->thread[i], NULL) != 0)
-//			return (print_error("pthread_join() failed."));
-# include <errno.h>
-//		if (pthread_join(table->thread[i], NULL) != 0)
-//		{
-//			printf("errno = %d\n", (int)errno);
-//			exit(EXIT_FAILURE);
-//		}
 		i++;
 	}
 	return (true);
