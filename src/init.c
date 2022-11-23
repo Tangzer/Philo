@@ -75,7 +75,7 @@ static bool	init_mutex_forks(t_table *table)
 	table->forks = malloc(sizeof(pthread_mutex_t) * table->nb_philo);
 	if (!table->forks)
 		return (print_error("malloc() failed."));
-//	memset(table->forks, 0, sizeof(pthread_mutex_t));
+	memset(table->forks, 0, sizeof(pthread_mutex_t));
 	i = 0;
 	while (i < table->nb_philo)
 	{
@@ -118,7 +118,6 @@ static bool	init_philos(t_table *table)
 	while (i < table->nb_philo)
 	{
 		init_philo_forks_in_hand(table, i);
-//		table->philo[i].id_philo = i + 1;
 		i++;
 	}
 	return (true);

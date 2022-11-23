@@ -114,7 +114,6 @@ int	main(int ac, char **av)
 	return (0);
 }
 
-
 // CHECK LEAKS && FREE
 // check_if someone_died tourne a l'infini parfois...
 // ptrhead_join problematqiue avec bcp de philo
