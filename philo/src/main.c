@@ -6,7 +6,7 @@
 /*   By: Verdoodt <Verdoodt@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 17:56:54 by tverdood          #+#    #+#             */
-/*   Updated: 2023/01/22 16:30:40 by Verdoodt         ###   ########.fr       */
+/*   Updated: 2023/01/22 17:12:30 by Verdoodt         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,6 @@ int	main(int ac, char **av)
 		return (free_and_exit(table, 4));
 	free_philos(table);
 	free(table);
-//	system("leaks philo");
+	system("leaks philo");
 	return (0);
 }

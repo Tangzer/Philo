@@ -6,7 +6,7 @@
 /*   By: Verdoodt <Verdoodt@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 17:56:56 by tverdood          #+#    #+#             */
-/*   Updated: 2023/01/22 16:36:16 by Verdoodt         ###   ########.fr       */
+/*   Updated: 2023/01/22 19:13:08 by Verdoodt         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,8 @@ void	ft_sleep(unsigned long long time_to_sleep, t_table *table)
 	{
 		if (get_time_now() - start >= time_to_sleep)
 			break ;
-		pthread_mutex_lock(&table->print);
 		if (table->someone_dead == 1)
-		{
-			pthread_mutex_unlock(&table->print);
 			break ;
-		}
-		pthread_mutex_unlock(&table->print);
 	}
 	return ;
 }
@@ -37,7 +32,8 @@ static void	start_dining(t_table *table, t_philo *philo)
 	start_eating(table, philo);
 	if (table->someone_dead == 1)
 		return ;
-	print_log(table, philo, THINK);
+	else
+		print_log(table, philo, THINK);
 	return ;
 }
 
@@ -50,7 +46,7 @@ static void	philo_loop(t_table *data)
 	philo = table->philo[table->index];
 	table->index++;
 	if (philo->id_philo % 2 == 0)
-		ft_sleep(50, table);
+		ft_sleep(10, table);
 	while (table->nb_times_each_philo_must_eat == -1
 		|| table->nb_rounds < table->nb_times_each_philo_must_eat)
 	{
@@ -73,6 +69,7 @@ bool	run_philo_loop(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
+		//usleep(100);//effacer?
 		table->philo[i]->last_meal = get_time_now();
 		if (pthread_create(&table->thread[i], NULL, (void *)philo_loop,
 				table) != 0)

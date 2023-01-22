@@ -6,7 +6,7 @@
 /*   By: Verdoodt <Verdoodt@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 17:56:40 by tverdood          #+#    #+#             */
-/*   Updated: 2023/01/22 16:40:35 by Verdoodt         ###   ########.fr       */
+/*   Updated: 2023/01/22 19:02:52 by Verdoodt         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ static void	eating(t_table *table, t_philo *philo)
 {
 	print_log(table, philo, EAT);
 	ft_sleep(table->time_to_eat, table);
-	philo->last_meal = get_time_now();
 	if (table->nb_times_each_philo_must_eat != -1
 		&& table->nb_philo_who_ate_this_round < table->nb_philo)
 	{
@@ -53,6 +52,7 @@ static void	eating(t_table *table, t_philo *philo)
 				table->someone_dead = 1;
 		}
 	}
+	philo->last_meal = get_time_now();
 }
 
 void	start_eating(t_table *table, t_philo *philo)
