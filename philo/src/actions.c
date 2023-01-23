@@ -26,8 +26,6 @@ static void	take_left_fork(t_table *table, t_philo *philo)
 		return ;
 	pthread_mutex_lock(philo->left_fork);
 	print_log(table, philo, FORK);
-	if (table->nb_philo == 1)
-		ft_sleep(table->time_to_die + 10, table);
 }
 
 static void	sleeping(t_table *table, t_philo *philo)
@@ -39,6 +37,7 @@ static void	sleeping(t_table *table, t_philo *philo)
 static void	eating(t_table *table, t_philo *philo)
 {
 	print_log(table, philo, EAT);
+	philo->last_meal = get_time_now();
 	ft_sleep(table->time_to_eat, table);
 	philo->last_meal = get_time_now();
 	if (table->nb_times_each_philo_must_eat != -1
@@ -58,7 +57,10 @@ static void	eating(t_table *table, t_philo *philo)
 void	start_eating(t_table *table, t_philo *philo)
 {
 	if (table->nb_philo == 1)
+	{
 		take_left_fork(table, philo);
+		ft_sleep(table->time_to_die + 100, table);
+	}
 	else
 	{
 		take_left_fork(table, philo);
