@@ -6,7 +6,7 @@
 /*   By: Verdoodt <Verdoodt@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 17:56:56 by tverdood          #+#    #+#             */
-/*   Updated: 2023/01/22 19:13:08 by Verdoodt         ###   ########.fr       */
+/*   Updated: 2023/01/22 19:46:18 by Verdoodt         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ bool	run_philo_loop(t_table *table)
 	i = 0;
 	while (i < table->nb_philo)
 	{
-		//usleep(100);//effacer?
 		table->philo[i]->last_meal = get_time_now();
 		if (pthread_create(&table->thread[i], NULL, (void *)philo_loop,
 				table) != 0)
