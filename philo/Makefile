@@ -195,8 +195,15 @@ all: header setup $(NAME)
 
 header:
 	@printf "%b" "$(ERROR_COLOR)"
-	@echo "  __                             __                      __"
-	@echo
+	@echo "	________  ___  ___  ___  ___       ________			"
+	@echo "	|\   __  \|\  \|\  \|\  \|\  \     |\   __  \		"
+	@echo "	\ \  \|\  \ \  \\    \ \  \ \  \    \ \  \|\  \		"
+	@echo "	 \ \   ____\ \   __  \ \  \ \  \    \ \  \\\   \	"
+	@echo "	  \ \  \___|\ \  \ \  \ \  \ \  \____\ \  \\\   \	"
+	@echo "	   \ \__\    \ \__\ \__\ \__\ \_______\ \_______\	"
+	@echo "	    \|__|     \|__|\|__|\|__|\|_______|\|_______|	"
+	@echo "														"
+
 ifneq ($(HASH),)
 	@printf "%b" "$(OBJ_COLOR)Name:	$(WARN_COLOR)$(NAME)\n"
 else
